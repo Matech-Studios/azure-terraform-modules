@@ -18,11 +18,11 @@ locals {
 }
 
 resource "azurerm_kubernetes_cluster" "cluster" {
+  depends_on = [null_resource.delay_after_sp_created, null_resource.consent_delay]
   lifecycle {
     ignore_changes = [
       default_node_pool[0].node_count,
-      default_node_pool[0].node_taints,
-      role_based_access_control[0].azure_active_directory[0].server_app_secret
+      default_node_pool[0].node_taints
     ]
   }
   name                = var.cluster_name
@@ -35,7 +35,7 @@ resource "azurerm_kubernetes_cluster" "cluster" {
     admin_username = var.admin_username
 
     ssh_key {
-      key_data = var.public_ssh_key
+      key_data = file(var.public_ssh_key_path)
     }
   }
 
@@ -44,8 +44,10 @@ resource "azurerm_kubernetes_cluster" "cluster" {
     dynamic "azure_active_directory" {
       for_each = var.enable_aad_auth == false ? [] : list(var.enable_aad_auth)
       content {
-        managed = true
-        admin_group_object_ids = [azuread_group.aks-aad-clusteradmins[0].id]
+        client_app_id     = azuread_service_principal.client_sp[0].application_id
+        server_app_id     = azuread_service_principal.server_sp[0].application_id
+        server_app_secret = azuread_service_principal_password.server_sp_password[0].value
+        tenant_id         = data.azurerm_subscription.current.tenant_id
       }
     }
   }

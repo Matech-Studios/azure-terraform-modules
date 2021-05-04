@@ -155,9 +155,9 @@ variable "pod_cidr" {
   default     = null
 }
 
-variable "public_ssh_key" {
+variable "public_ssh_key_path" {
   type        = string
-  description = "Public SSH key tied to the admin user in linux_profile"
+  description = "The path to the ssh pub file, tied to the admin user in linux_profile"
 }
 
 variable "region" {
@@ -179,6 +179,18 @@ variable "aks_sp_secret" {
   type        = string
   default     = null
   description = "The secret to use for the AKS service principal account"
+}
+
+variable "auth_client_sp_secret" {
+  type        = string
+  default     = null
+  description = "The secret to use for the AAD Client service principal account"
+}
+
+variable "auth_server_sp_secret" {
+  type        = string
+  default     = null
+  description = "The secret to use for the AAD Server service principal account"
 }
 
 variable "additional_tags" {

@@ -9,7 +9,7 @@ locals {
 }
 
 module "subnet_addrs" {
-  source          = "git::https://git@github.com:hashicorp/terraform-cidr-subnets.git?ref=v1.0.0"
+  source          = "git@github.com:hashicorp/terraform-cidr-subnets.git?ref=v1.0.0"
   base_cidr_block = local.network_cidr
   networks        = local.network_objs
 }
@@ -27,15 +27,6 @@ resource "azurerm_virtual_network" "network" {
       address_prefix = subnet.value
     }
   }
-
-  dynamic "ddos_protection_plan" {
-    for_each = var.enable_ddos_protection_plan ? [1] : []
-    content {
-      enable = var.enable_ddos_protection_plan
-      id = var.ddos_protection_plan_id
-    }
-  }
-
   tags = merge(var.additional_tags, {
     created-by    = "Terraform"
     module-source = "github.com/FairwindsOps/azure-terraform-modules/virtual-network"
